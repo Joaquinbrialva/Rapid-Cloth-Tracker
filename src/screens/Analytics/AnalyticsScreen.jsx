@@ -1,13 +1,11 @@
-import { StyleSheet, Text } from 'react-native'
+import { Text, StyleSheet } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-const HomeScreen = () => {
+const AnalyticsScreen = () => {
     return (
         <SafeAreaView style={styles.container} >
-            <Text style={styles.text} >
-                ¡Bienvenido a Rapid Clothe Tracker!
-            </Text>
+            <Text style={styles.text}>Pantalla en desarrollo</Text>
         </SafeAreaView>
     )
 }
@@ -20,8 +18,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     text: {
-        fontSize: 20
+        fontSize: 30,
+        textAlign: 'center',
     }
 })
 
-export default HomeScreen
+export default AnalyticsScreen

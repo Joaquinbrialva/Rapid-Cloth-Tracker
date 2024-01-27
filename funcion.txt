@@ -1,0 +1,15 @@
+    const uploadImage = async () => {
+        try {
+            let pick = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            let result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 1
+            });
+            console.log(pick)
+            setImage(result.assets[0].uri)
+        } catch (error) {
+            console.log(error);
+        }
+    }
