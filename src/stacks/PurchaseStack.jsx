@@ -2,7 +2,7 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import PurchaseDetails from '../screens/Purchases/Details/PurchaseDetails';
 import PurchaseScreen from '../screens/Purchases/PurchaseScreen';
-import RegisterPurchase from '../screens/Purchases/RegisterPurchase';
+import EditPurchase from '../screens/Purchases/EditPurchaseScreen';
 
 const Stack = createStackNavigator();
 
@@ -21,6 +21,13 @@ const PurchaseStack = () => {
                 component={PurchaseDetails}
                 options={{
                     title: 'Detalle'
+                }}
+            />
+            <Stack.Screen
+                name='EditPurchase'
+                component={EditPurchase}
+                options={{
+                    title: 'Editar prenda'
                 }}
             />
         </Stack.Navigator>

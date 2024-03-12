@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { useRoute } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
@@ -7,14 +7,13 @@ import APIURL from '../../api/API';
 import categories from '../../utils/categories';
 import { Picker } from '@react-native-picker/picker';
 import COLOR_APP from '../../utils/colors';
-import Loading from '../../components/Loading';
 
 const RegisterPurchase = () => {
     const route = useRoute();
     const { image } = route.params;
     const [inputsData, setInputsData] = useState({ image });
     const [loading, setLoading] = useState(false);
-    const navigation = useNavigation();
+    const navigate = useNavigation();
 
     const registerProduct = async (product) => {
         try {
@@ -31,19 +30,18 @@ const RegisterPurchase = () => {
 
             if (data.status === 'error') {
                 // Mostrar la alerta y esperar a que el usuario confirme
-                alert(data.message);
+                Alert.alert(data.message);
             } else {
                 // Mostrar la alerta de éxito y esperar a que el usuario confirme
-                alert('Compra registrada con éxito');
+                Alert.alert('Compra registrada', 'Compra registrada con éxito');
+                navigate.navigate('HomeScreen');
             }
         } catch (error) {
             console.log(error);
-        } finally {
             setLoading(false);
+            Alert.alert('Error', 'Ha ocurrido un error. Por favor, inténtalo de nuevo más tarde.');
         }
     };
-
-    if (loading) return (<Loading />);
 
     return (
         <KeyboardAvoidingView
@@ -96,11 +94,26 @@ const RegisterPurchase = () => {
                     </Picker>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <Button mode="elevated" onPress={() => {
-                        registerProduct(inputsData);
-                        // No navegues aquí, espera a que el usuario confirme la alerta
-                    }} style={styles.button}>Listo</Button>
-                    <Button mode="elevated" textColor='white' onPress={() => navigation.navigate('HomeScreen')} style={[styles.button, { backgroundColor: '#f44336' }]}>Cancelar</Button>
+                    <Button
+                        mode="contained"
+                        icon='check'
+                        onPress={() => {
+                            registerProduct(inputsData);
+                        }}
+                        style={styles.button}
+                        loading={loading}
+                    >
+                        Listo
+                    </Button>
+                    <Button
+                        mode="contained"
+                        icon='close'
+                        onPress={() => navigate.navigate('HomeScreen')}
+                        style={[styles.button, { backgroundColor: '#f44336' }]}
+                        disabled={loading}
+                    >
+                        Cancelar
+                    </Button>
                 </View>
             </ScrollView>
         </KeyboardAvoidingView >

@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Text, ScrollView, StyleSheet, RefreshControl, View } from 'react-native';
-import { Card, Searchbar } from 'react-native-paper';
-import { formatDate, formatPrice, removeAccents } from '../../utils/formatFunctions';
-import { useNavigation } from '@react-navigation/native';
+import { Searchbar } from 'react-native-paper';
+import { removeAccents } from '../../utils/formatFunctions';
+import { useNavigation, useFocusEffect } from '@react-navigation/native'; // Importa useFocusEffect
 import APIURL from '../../api/API';
-import Loading from '../../components/Loading';
-import COLOR_APP from '../../utils/colors';
-import FadeInView from '../../components/Animating';
+import Loading from '../../components/Loaders/Loading';
+import FadeInView from '../../components/Animations/Animating';
+import ProductCard from '../../components/Cards/ProductCard';
 
-const ShoppingScreen = () => {
+const PurchaseScreen = () => {
     const navigation = useNavigation();
     const [refreshing, setRefreshing] = useState(false);
     const [products, setProducts] = useState([]);
@@ -19,6 +19,9 @@ const ShoppingScreen = () => {
             setRefreshing(true);
             const response = await fetch(`${APIURL}/clothes`);
             const data = await response.json();
+            if (data.status === 'error') {
+                throw new Error(data.message);
+            }
             setProducts(data?.data);
         } catch (error) {
             console.log(error);
@@ -27,81 +30,74 @@ const ShoppingScreen = () => {
         }
     };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
     const handleRefresh = () => {
         setRefreshing(true);
         fetchData();
     };
 
     const goToProductDetail = (productId) => {
-        navigation.navigate('PurchaseDetails', { id: productId });
+        navigation.navigate('PurchaseDetails', { id: productId })
     };
 
-    const filteredProducts = products.filter((product) =>
+    const filteredProducts = products?.filter((product) =>
         removeAccents(product.title.toLowerCase()).includes(removeAccents(searchQuery.toLowerCase()))
     );
 
-    if (refreshing) return <Loading />
+    useFocusEffect(
+        useCallback(() => {
+            fetchData(); // Llama a fetchData cuando el componente recibe foco
+        }, [])
+    );
+
+    if (refreshing) return <Loading />;
+
+    if (filteredProducts?.length === 0) {
+        <View style={styles.noProductsContainer}>
+            <Text style={styles.noProductsText}>No hay productos disponibles</Text>
+        </View>
+    }
 
     return (
         <ScrollView
             style={styles.container}
-            refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-            }
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
         >
-            <Searchbar
-                style={styles.searchBar}
-                placeholder="Buscar producto"
-                onChangeText={(query) => setSearchQuery(query)}
-                value={searchQuery}
-            />
-            {filteredProducts.map((product) => (
-                <FadeInView key={product._id} >
-                    <Card
-                        key={product._id}
-                        mode='elevated'
-                        style={styles.card}
-                        onPress={() => goToProductDetail(product._id)}
-                    >
-                        <Card.Cover source={{ uri: product.image }} />
-                        <Card.Title title={product.title} />
-                        <Card.Content>
-                            <Text variant='titleLarge'>{product.description}</Text>
-                            <Text variant="titleLarge">{formatPrice(product.price)}</Text>
-                            <Text variant="titleLarge">
-                                Comprado el: {formatDate(product.boughtDate)}
-                            </Text>
-                        </Card.Content>
-                    </Card>
-                </FadeInView>
-            ))}
+            <View style={styles.cardContainer}>
+                <Searchbar
+                    style={styles.searchBar}
+                    placeholder="Buscar producto"
+                    onChangeText={(query) => setSearchQuery(query)}
+                    value={searchQuery}
+                />
+                {filteredProducts?.map((product) => (
+                    <FadeInView key={product._id}>
+                        <ProductCard
+                            product={product}
+                            onPress={() => goToProductDetail(product._id)}
+                        />
+                    </FadeInView>
+                ))}
+            </View>
         </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        width: '100%',
+        padding: 10
     },
-    card: {
-        margin: 10,
+    cardContainer: {
+        marginBottom: 10
     },
-    loader: {
+    noProductsContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    searchBar: {
-        backgroundColor: COLOR_APP.blacks[20],
-        margin: 10,
-        alignSelf: 'center',
-        shadowColor: '#000'
-    }
+    noProductsText: {
+        fontSize: 18,
+        color: 'gray',
+    },
 });
 
-export default ShoppingScreen;
+export default PurchaseScreen;
