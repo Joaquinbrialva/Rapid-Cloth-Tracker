@@ -2,6 +2,7 @@ import React from 'react';
 import { Card as PaperCard, Text } from 'react-native-paper';
 import { formatDate, formatPrice } from '../../utils/formatFunctions';
 import { StyleSheet } from 'react-native';
+import COLOR_APP from '../../utils/colors';
 
 const ProductCard = ({ product, onPress }) => {
     return (
@@ -9,8 +10,9 @@ const ProductCard = ({ product, onPress }) => {
             mode='elevated'
             style={styles.card}
             onPress={onPress}
+            key={product._id}
         >
-            <PaperCard.Cover source={{ uri: product.image }} />
+            <PaperCard.Cover source={{ uri: product.image }} style={styles.coverImage} />
             <PaperCard.Content style={styles.cardContent}>
                 <Text style={styles.title}>{product.title}</Text>
                 <Text style={styles.description}>{product.description}</Text>
@@ -29,6 +31,9 @@ const styles = StyleSheet.create({
     cardContent: {
         padding: 15,
     },
+    coverImage: {
+        height: 250,
+    },
     title: {
         fontSize: 20,
         fontWeight: 'bold',
@@ -45,7 +50,7 @@ const styles = StyleSheet.create({
     },
     date: {
         fontSize: 14,
-        color: 'gray',
+        color: COLOR_APP.grey
     },
 });
 

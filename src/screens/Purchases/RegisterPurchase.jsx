@@ -29,10 +29,8 @@ const RegisterPurchase = () => {
             setLoading(false);
 
             if (data.status === 'error') {
-                // Mostrar la alerta y esperar a que el usuario confirme
                 Alert.alert(data.message);
             } else {
-                // Mostrar la alerta de éxito y esperar a que el usuario confirme
                 Alert.alert('Compra registrada', 'Compra registrada con éxito');
                 navigate.navigate('HomeScreen');
             }

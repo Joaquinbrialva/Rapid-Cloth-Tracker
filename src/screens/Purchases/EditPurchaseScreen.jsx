@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, Image, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { useRoute } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
@@ -13,6 +13,7 @@ const EditPurchase = () => {
   const { product } = route?.params;
   const [purchase, setPurchase] = useState({});
   const [loading, setLoading] = useState(false);
+  const [reload, setReload] = useState(false);
   const navigate = useNavigation();
 
   useEffect(() => {
@@ -26,14 +27,11 @@ const EditPurchase = () => {
     setPurchase(purchaseData);
   }, []);
 
-  const updatePurchase = async () => {
+  const updatePurchase = async (purchaseId) => {
     try {
       setLoading(true);
-      // Aquí debes realizar una llamada a la API para actualizar la compra
-      // Puedes utilizar la misma URL de la API y el método 'PUT'
-      // No olvides enviar el ID de la compra para identificarla
       const response = await fetch(`${APIURL}/clothes/${purchaseId}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
         },
@@ -46,7 +44,7 @@ const EditPurchase = () => {
         Alert.alert(data.message);
       } else {
         Alert.alert('Compra actualizada', 'La compra se ha actualizado con éxito');
-        navigate.navigate('HomeScreen');
+        navigate.goBack();
       }
     } catch (error) {
       console.log(error);
@@ -104,18 +102,21 @@ const EditPurchase = () => {
           <Button
             mode="contained"
             icon='check'
-            onPress={updatePurchase}
+            onPress={() => { updatePurchase(product._id) }}
             style={styles.button}
             loading={loading}
+            disabled={!purchase.title || !purchase.price || !purchase.category}
           >
             Actualizar
           </Button>
           <Button
             mode="contained"
             icon='close'
-            onPress={() => navigate.navigate('HomeScreen')}
             style={[styles.button, { backgroundColor: '#f44336' }]}
             disabled={loading}
+            onPress={() => {
+              navigate.goBack();
+            }}
           >
             Cancelar
           </Button>
